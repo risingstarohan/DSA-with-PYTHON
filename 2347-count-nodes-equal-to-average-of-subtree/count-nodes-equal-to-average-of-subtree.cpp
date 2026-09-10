@@ -9,28 +9,32 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
-class Solution { 
-public: 
-    int averageOfSubtree(TreeNode* root) { 
-        int ans = 0;
-        
-        function<pair<int,int>(TreeNode*)> dfs = [&](TreeNode* node) {
-            if (node == NULL)
-                return make_pair(0, 0);
-            
-            auto left = dfs(node->left);
-            auto right = dfs(node->right);
-            
-            int sum = left.first + right.first + node->val;
-            int count = left.second + right.second + 1;
-            
-            if (sum / count == node->val)
-                ans++;
-            
-            return make_pair(sum, count);
-        };
-        
+class Solution {
+private:
+    int matchingNodes = 0;
+
+    // Helper function returns pair<subtree_sum, subtree_count>
+    pair<int, int> dfs(TreeNode* node) {
+        if (!node) return {0, 0};
+
+        auto [leftSum, leftCount] = dfs(node->left);
+        auto [rightSum, rightCount] = dfs(node->right);
+
+        int currentSum = leftSum + rightSum + node->val;
+        int currentCount = leftCount + rightCount + 1;
+
+        // Check if node value equals floor(sum / count)
+        if (currentSum / currentCount == node->val) {
+            matchingNodes++;
+        }
+
+        return {currentSum, currentCount};
+    }
+
+public:
+    int averageOfSubtree(TreeNode* root) {
+        matchingNodes = 0;
         dfs(root);
-        return ans;
-    } 
+        return matchingNodes;
+    }
 };
